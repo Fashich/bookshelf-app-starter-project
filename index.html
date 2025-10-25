@@ -1,124 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookshelf App</title>
     <link rel="stylesheet" href="style.css">
     <script defer src="main.js"></script>
   </head>
   <body>
-    <header>
-      <h1>Bookshelf App</h1>
-      <div id="auth-container" data-testid="authContainer">
-        <div id="login-form" class="auth-form" data-testid="loginForm">
-          <h2>Login</h2>
-          <form id="loginForm" data-testid="loginForm">
-            <input type="text" id="loginUsername" data-testid="loginUsername" placeholder="Username" required>
-            <input type="password" id="loginPassword" data-testid="loginPassword" placeholder="Password" required>
-            <button type="submit" data-testid="loginSubmit">Login</button>
-            <p>Belum punya akun? <a href="#" id="showRegister" data-testid="showRegisterLink">Daftar</a></p>
-          </form>
+    <!-- Welcome Section -->
+    <section id="welcome-section" class="welcome-section">
+      <div class="welcome-overlay"></div>
+      <div class="welcome-content">
+        <h1>Welcome to Bookshelf App</h1>
+        <p>A sophisticated digital library for professionals and learners</p>
+        <button id="login-button" class="btn-primary">Get Started</button>
+      </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Account Login</h2>
+        <p class="login-instruction">For demonstration purposes, use the following credentials:</p>
+        <div class="demo-credentials">
+          <div class="credential-item">
+            <strong>Username:</strong> demo
+          </div>
+          <div class="credential-item">
+            <strong>Password:</strong> demo123
+          </div>
         </div>
-        <div id="register-form" class="auth-form" data-testid="registerForm" style="display:none;">
-          <h2>Register</h2>
-          <form id="registerForm" data-testid="registerForm">
-            <input type="text" id="registerUsername" data-testid="registerUsername" placeholder="Username" required>
-            <input type="password" id="registerPassword" data-testid="registerPassword" placeholder="Password" required>
-            <button type="submit" data-testid="registerSubmit">Register</button>
-            <p>Sudah punya akun? <a href="#" id="showLogin" data-testid="showLoginLink">Login</a></p>
-          </form>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+          </div>
+          <button type="submit" class="btn-primary">Login</button>
+        </form>
+        <div id="login-error" class="error-message" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app-container" style="display:none;">
+      <header>
+        <div class="header-container">
+          <h1>Bookshelf App</h1>
+          <div class="header-actions">
+            <button id="logout-button" class="btn-secondary">Logout</button>
+            <div class="user-info">
+              <span id="user-greeting">Welcome, User</span>
+              <div class="user-avatar">U</div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main>
+        <section class="book-controls">
+          <div class="controls-container">
+            <div class="control-item">
+              <h2>Tambah Buku Baru</h2>
+              <form id="bookForm" data-testid="bookForm">
+                <div>
+                  <label for="bookFormTitle">Judul</label>
+                  <input id="bookFormTitle" type="text" required data-testid="bookFormTitleInput">
+                </div>
+                <div>
+                  <label for="bookFormAuthor">Penulis</label>
+                  <input id="bookFormAuthor" type="text" required data-testid="bookFormAuthorInput">
+                </div>
+                <div>
+                  <label for="bookFormYear">Tahun</label>
+                  <input id="bookFormYear" type="number" required data-testid="bookFormYearInput">
+                </div>
+                <div>
+                  <label for="bookFormIsComplete">Selesai dibaca</label>
+                  <input
+                    id="bookFormIsComplete"
+                    type="checkbox"
+                    data-testid="bookFormIsCompleteCheckbox">
+                </div>
+                <button id="bookFormSubmit" type="submit" data-testid="bookFormSubmitButton">
+                  Masukkan Buku ke rak <span>Belum selesai dibaca</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="control-item">
+              <h2>Cari Buku</h2>
+              <form id="searchBook" data-testid="searchBookForm">
+                <div class="search-container">
+                  <input id="searchBookTitle" type="text" data-testid="searchBookFormTitleInput"
+                    placeholder="Cari buku berdasarkan judul...">
+                  <button id="searchSubmit" type="submit" data-testid="searchBookFormSubmitButton">
+                    Cari
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="bookshelves">
+          <div class="shelf-container">
+            <div class="shelf-header">
+              <h2>Belum selesai dibaca</h2>
+              <span id="incomplete-count" class="book-count">0 buku</span>
+            </div>
+            <div id="incompleteBookList" data-testid="incompleteBookList" class="book-list">
+              <!-- Book items will be inserted here -->
+            </div>
+          </div>
+
+          <div class="shelf-container">
+            <div class="shelf-header">
+              <h2>Selesai dibaca</h2>
+              <span id="complete-count" class="book-count">0 buku</span>
+            </div>
+            <div id="completeBookList" data-testid="completeBookList" class="book-list">
+              <!-- Book items will be inserted here -->
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Book Detail Modal -->
+    <div id="book-modal" class="modal">
+      <div class="modal-content book-detail-modal">
+        <span class="close">&times;</span>
+        <div class="book-detail-header">
+          <div class="book-cover">
+            <img id="modal-book-cover" src="" alt="Book cover">
+          </div>
+          <div class="book-info">
+            <h2 id="modal-book-title"></h2>
+            <p id="modal-book-author"></p>
+            <div class="book-meta">
+              <span id="modal-book-year"></span> |
+              <span id="modal-book-status"></span>
+            </div>
+          </div>
+        </div>
+        <div class="book-content">
+          <div id="book-content-placeholder">
+            <!-- Book content will be loaded here -->
+          </div>
+          <div class="reading-progress">
+            <div class="progress-bar">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div class="progress-text">Progress: <span id="progress-percentage">0%</span></div>
+            <button id="mark-read" class="btn-primary">Tandai sebagai dibaca</button>
+          </div>
         </div>
       </div>
-      <button id="logoutButton" data-testid="logoutButton" style="display:none;">Logout</button>
-    </header>
-
-    <main>
-      <section>
-        <h2>Tambah Buku Baru</h2>
-        <form id="bookForm" data-testid="bookForm">
-          <div>
-            <label for="bookFormTitle">Judul</label>
-            <input id="bookFormTitle" type="text" required data-testid="bookFormTitleInput" />
-          </div>
-          <div>
-            <label for="bookFormAuthor">Penulis</label>
-            <input id="bookFormAuthor" type="text" required data-testid="bookFormAuthorInput" />
-          </div>
-          <div>
-            <label for="bookFormYear">Tahun</label>
-            <input id="bookFormYear" type="number" required data-testid="bookFormYearInput" />
-          </div>
-          <div>
-            <label for="bookFormIsComplete">Selesai dibaca</label>
-            <input
-              id="bookFormIsComplete"
-              type="checkbox"
-              data-testid="bookFormIsCompleteCheckbox"
-            />
-          </div>
-          <button id="bookFormSubmit" type="submit" data-testid="bookFormSubmitButton">
-            Masukkan Buku ke rak <span>Belum selesai dibaca</span>
-          </button>
-        </form>
-      </section>
-
-      <section>
-        <h2>Cari Buku</h2>
-        <form id="searchBook" data-testid="searchBookForm">
-          <label for="searchBookTitle">Judul</label>
-          <input id="searchBookTitle" type="text" data-testid="searchBookFormTitleInput" />
-          <button id="searchSubmit" type="submit" data-testid="searchBookFormSubmitButton">
-            Cari
-          </button>
-        </form>
-      </section>
-
-      <section>
-        <h2>Belum selesai dibaca</h2>
-
-        <div id="incompleteBookList" data-testid="incompleteBookList">
-          <!--
-            This is where incomplete books will be rendered
-          -->
-        </div>
-      </section>
-
-      <section>
-        <h2>Selesai dibaca</h2>
-
-        <div id="completeBookList" data-testid="completeBookList">
-          <!--
-            This is where complete books will be rendered
-          -->
-        </div>
-      </section>
-    </main>
+    </div>
 
     <!-- Edit Book Modal -->
-    <div id="editModal" class="modal" style="display:none;">
+    <div id="edit-modal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Edit Buku</h2>
-        <form id="editBookForm">
-          <input type="hidden" id="editBookId">
+        <form id="editForm">
           <div>
             <label for="editTitle">Judul</label>
-            <input type="text" id="editTitle" required>
+            <input id="editTitle" type="text" required>
           </div>
           <div>
             <label for="editAuthor">Penulis</label>
-            <input type="text" id="editAuthor" required>
+            <input id="editAuthor" type="text" required>
           </div>
           <div>
             <label for="editYear">Tahun</label>
-            <input type="number" id="editYear" required>
+            <input id="editYear" type="number" required>
           </div>
           <div>
-            <label for="editIsComplete">Selesai dibaca</label>
-            <input type="checkbox" id="editIsComplete">
+            <label for="editIsComplete">Status</label>
+            <select id="editIsComplete">
+              <option value="false">Baca</option>
+              <option value="true">Baca Lagi</option>
+            </select>
           </div>
-          <button type="submit">Simpan Perubahan</button>
+          <button type="submit" class="btn-primary">Simpan Perubahan</button>
         </form>
       </div>
     </div>
