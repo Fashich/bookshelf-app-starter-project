@@ -1,6 +1,4 @@
-// Bookshelf App - JavaScript Implementation
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
     const loginButton = document.getElementById('login-button');
     const loginModal = document.getElementById('login-modal');
     const loginForm = document.getElementById('login-form');
@@ -16,28 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const editModal = document.getElementById('edit-modal');
     const closeModalButtons = document.querySelectorAll('.close');
     const markReadButton = document.getElementById('mark-read');
-    const availableBooksContainer = document.getElementById('available-books');
 
-    // User state
     let currentUser = null;
     let isDemoMode = false;
     let currentBookId = null;
 
-    // Book data
     let books = [];
 
-    // Progress tracking
     let readingIntervals = {};
     let lastScrollPositions = {};
 
-    // Initialize application
     init();
 
     function init() {
-        // Initialize book data
         loadBooks();
 
-        // Set up event listeners
         loginButton.addEventListener('click', () => {
             loginModal.style.display = 'block';
             document.body.style.overflow = 'hidden';
@@ -47,8 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutButton.addEventListener('click', handleLogout);
         bookForm.addEventListener('submit', handleAddBook);
         searchForm.addEventListener('submit', handleSearch);
-
-        // Close modals
         closeModalButtons.forEach(button => {
             button.addEventListener('click', () => {
                 loginModal.style.display = 'none';
@@ -56,15 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 editModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
 
-                // Stop reading progress tracking when modal is closed
                 if (currentBookId && readingIntervals[currentBookId]) {
                     clearInterval(readingIntervals[currentBookId]);
                     delete readingIntervals[currentBookId];
                 }
             });
         });
-
-        // Close modal when clicking outside
         window.addEventListener('click', (event) => {
             if (event.target === loginModal ||
                 event.target === bookModal ||
@@ -74,15 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 editModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
 
-                // Stop reading progress tracking when modal is closed
                 if (currentBookId && readingIntervals[currentBookId]) {
                     clearInterval(readingIntervals[currentBookId]);
                     delete readingIntervals[currentBookId];
                 }
             }
         });
-
-        // Mark as read
         markReadButton.addEventListener('click', () => {
             if (!currentBookId) return;
 
@@ -93,16 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateReadingProgressInUI(currentBookId, book.readingProgress);
                 saveBooks();
 
-                // Close modal
                 bookModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
 
-                // Update UI
                 renderBooks();
             }
         });
 
-        // Check if user is already logged in
         const isUserLoggedIn = localStorage.getItem('isUserLoggedIn') === 'true';
         const isDemoUser = localStorage.getItem('isDemoUser') === 'true';
 
@@ -117,14 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderBooks();
             updateBookCounts();
         } else if (isDemoUser) {
-            // Demo user is considered logged in
             appContainer.style.display = 'block';
             document.body.style.overflow = 'auto';
             currentUser = { name: 'Demo User' };
             isDemoMode = true;
             document.getElementById('user-greeting').textContent = `Welcome, ${currentUser.name}`;
 
-            // Load demo books
             loadDemoBooks();
             renderBooks();
             updateBookCounts();
@@ -144,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             appContainer.style.display = 'block';
             document.body.style.overflow = 'auto';
 
-            // Set demo mode
             isDemoMode = true;
             localStorage.setItem('isDemoUser', 'true');
             localStorage.removeItem('isUserLoggedIn');
@@ -152,19 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = { name: 'Demo User' };
             document.getElementById('user-greeting').textContent = `Welcome, ${currentUser.name}`;
 
-            // Hide welcome section
             welcomeSection.style.display = 'none';
 
-            // Load demo books
             loadDemoBooks();
             renderBooks();
             updateBookCounts();
         } else if (username && password) {
-            // For a real application, this would validate against a database
             loginError.textContent = 'Invalid credentials. For demo, use username: demo and password: demo123';
             loginError.style.display = 'block';
 
-            // Auto-hide error message
             setTimeout(() => {
                 loginError.style.display = 'none';
             }, 3000);
@@ -172,23 +145,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleLogout() {
-        // Clear user data
         localStorage.removeItem('isUserLoggedIn');
         localStorage.removeItem('userName');
         localStorage.removeItem('isDemoUser');
 
-        // Clear demo data if it's demo mode
         if (isDemoMode) {
             localStorage.removeItem('bookshelf-books');
             books = [];
             renderBooks();
         }
 
-        // Reset user
         currentUser = null;
         isDemoMode = false;
 
-        // Show welcome section
         welcomeSection.style.display = 'block';
         appContainer.style.display = 'none';
         document.getElementById('user-greeting').textContent = 'Welcome, User';
@@ -197,19 +166,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleAddBook(e) {
         e.preventDefault();
 
-        // Get form values
         const title = document.getElementById('bookFormTitle').value;
         const author = document.getElementById('bookFormAuthor').value;
         const year = parseInt(document.getElementById('bookFormYear').value);
         const isComplete = document.getElementById('bookFormIsComplete').checked;
 
-        // Validate inputs
         if (!title || !author || !year) {
             alert('Please fill in all required fields');
             return;
         }
 
-        // Check if this is a pre-provided book
         const preProvidedBooks = [
             'Bikin Automation dari Nol sampai Jadi menggunakan n8n',
             'React + JSX: Building Modern Web Appilications',
@@ -224,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isRead = isPreProvided ? false : false;
         const readingProgress = isPreProvided ? 0 : 0;
 
-        // Create new book
         const newBook = {
             id: Date.now().toString(),
             title,
@@ -238,22 +203,16 @@ document.addEventListener('DOMContentLoaded', () => {
             isCustom: !isPreProvided
         };
 
-        // Add to books array
         books.push(newBook);
 
-        // Save to localStorage
         saveBooks();
 
-        // Reset form
         bookForm.reset();
 
-        // Re-render books
         renderBooks();
 
-        // Update counts
         updateBookCounts();
 
-        // Show success message
         const successMessage = document.createElement('div');
         successMessage.className = 'success-message';
         successMessage.textContent = 'Book added successfully!';
@@ -268,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.appendChild(successMessage);
 
-        // Auto-hide success message
         setTimeout(() => {
             successMessage.style.display = 'none';
             document.body.removeChild(successMessage);
@@ -285,13 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Filter books
         const filteredBooks = books.filter(book =>
             book.title.toLowerCase().includes(searchTerm) ||
             book.author.toLowerCase().includes(searchTerm)
         );
 
-        // Render filtered books
         renderBooks(filteredBooks);
     }
 
@@ -303,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const book = books.find(b => b.id == bookId);
 
         if (book) {
-            // Open book detail modal
             showBookDetail(book);
         }
     }
@@ -316,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const book = books.find(b => b.id == bookId);
 
         if (book && !book.isPreProvided) {
-            // Open edit modal
             document.getElementById('editTitle').value = book.title;
             document.getElementById('editAuthor').value = book.author;
             document.getElementById('editYear').value = book.year;
@@ -335,23 +289,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const book = books.find(b => b.id == bookId);
 
         if (book) {
-            // Update book data
             book.title = document.getElementById('editTitle').value;
             book.author = document.getElementById('editAuthor').value;
             book.year = parseInt(document.getElementById('editYear').value);
             book.isComplete = document.getElementById('editIsComplete').value === 'true';
 
-            // Save to localStorage
             saveBooks();
 
-            // Close modal
             editModal.style.display = 'none';
             document.body.style.overflow = 'auto';
 
-            // Re-render books
             renderBooks();
 
-            // Update counts
             updateBookCounts();
         }
     }
@@ -365,16 +314,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const book = books.find(b => b.id == bookId);
 
         if (book) {
-            // Toggle status
             book.isComplete = !book.isComplete;
 
-            // Save to localStorage
             saveBooks();
 
-            // Re-render books
             renderBooks();
 
-            // Update counts
             updateBookCounts();
         }
     }
@@ -386,18 +331,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const bookId = bookItem.dataset.bookid;
 
-        // Confirm deletion
         if (confirm('Apakah Anda yakin ingin menghapus buku ini?')) {
-            // Remove from books array
             books = books.filter(book => book.id != bookId);
 
-            // Save to localStorage
             saveBooks();
 
-            // Re-render books
             renderBooks();
 
-            // Update counts
             updateBookCounts();
         }
     }
@@ -408,35 +348,26 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-book-author').textContent = book.author;
         document.getElementById('modal-book-year').textContent = `Tahun: ${book.year}`;
         document.getElementById('modal-book-status').textContent =
-            book.isComplete ? 'Baca' : 'Baca Lagi';
+            book.isComplete ? 'Selesai dibaca' : 'Belum selesai dibaca';
 
-        // Set cover image
         const coverImage = getBookCover(book.title);
         document.getElementById('modal-book-cover').src = coverImage;
 
-        // Set content
         const contentElement = document.getElementById('book-content-placeholder');
         contentElement.innerHTML = formatBookContent(book.content);
 
-        // Set reading progress
         document.getElementById('progress-fill').style.width = `${book.readingProgress}%`;
         document.getElementById('progress-percentage').textContent = `${book.readingProgress}%`;
 
-        // Set mark as read button text
         document.getElementById('mark-read').textContent = book.isRead ? "Tandai sebagai belum dibaca" : "Tandai sebagai dibaca";
 
-        // Store current book ID for progress tracking
         currentBookId = book.id;
 
-        // Start progress tracking
         if (readingIntervals[book.id]) {
             clearInterval(readingIntervals[book.id]);
         }
 
-        // Reset last scroll position
         lastScrollPositions[book.id] = 0;
-
-        // Start progress tracking
         readingIntervals[book.id] = setInterval(() => {
             const content = document.getElementById('book-content-placeholder');
             if (!content) return;
@@ -447,7 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (scrollHeight > 0) {
                 const progress = Math.min(100, Math.max(0, Math.round((scrollPosition / scrollHeight) * 100)));
 
-                // Only update if progress has changed significantly
                 if (Math.abs(progress - book.readingProgress) > 2) {
                     book.readingProgress = progress;
                     document.getElementById('progress-fill').style.width = `${progress}%`;
@@ -458,16 +388,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 200);
 
-        // Show modal
         bookModal.style.display = 'block';
         document.body.style.overflow = 'auto';
     }
 
     function updateReadingProgressInUI(bookId, progress) {
-        // Update in-shelf progress bar
         const bookElement = document.querySelector(`.book-item[data-bookid="${bookId}"]`);
         if (bookElement) {
-            // Update progress display
             const progressBar = bookElement.querySelector('.progress-bar .progress-fill');
             const progressPercentage = bookElement.querySelector('.progress-text span');
 
@@ -487,11 +414,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBooks(booksToRender = books) {
-        // Clear existing content
         incompleteBookList.innerHTML = '';
         completeBookList.innerHTML = '';
 
-        // Render books
         booksToRender.forEach((book, index) => {
             const bookElement = createBookElement(book, index);
 
@@ -502,7 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Add event listeners to new elements
         document.querySelectorAll('.book-item').forEach(item => {
             item.addEventListener('click', handleBookClick);
         });
@@ -527,10 +451,8 @@ document.addEventListener('DOMContentLoaded', () => {
         bookElement.dataset.testid = 'bookItem';
         bookElement.style.setProperty('--index', index);
 
-        // Get book cover
         const cover = getBookCover(book.title);
 
-        // Create HTML structure
         bookElement.innerHTML = `
             <div class="book-content">
                 <h3 data-testid="bookItemTitle">${book.title}</h3>
@@ -544,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="actions">
                     ${!book.isPreProvided ? '<button class="btn-edit" data-testid="bookItemEditButton">Edit</button>' : ''}
-                    <button class="btn-primary" data-testid="bookItemIsCompleteButton">${book.isComplete ? 'Baca Lagi' : 'Baca'}</button>
+                    <button class="btn-primary" data-testid="bookItemIsCompleteButton">${book.isComplete ? 'Belum selesai' : 'Selesai dibaca'}</button>
                     <button class="btn-delete" data-testid="bookItemDeleteButton">Hapus</button>
                 </div>
             </div>
@@ -554,7 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getBookCover(title) {
-        // Map book titles to cover images
         const covers = {
             'Bikin Automation dari Nol sampai Jadi menggunakan n8n': 'images/Bookshelf/buku-1.png',
             'React + JSX: Building Modern Web Appilications': 'images/Bookshelf/buku-2.png',
@@ -569,7 +490,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getBookContent(title) {
-        // This would normally come from a database or API
         const booksData = {
             'Bikin Automation dari Nol sampai Jadi menggunakan n8n': `Preface\nIn an era where digital transformation is no longer optional but a critical determinant of organizational resilience and competitiveness, the ability to automate repetitive, time-consuming tasks has become a cornerstone of modern operational efficiency. The rise of low-code and no-code platforms has democratized automation, enabling professionals across diverse technical backgrounds to design sophisticated workflows without requiring deep programming expertise. Among these tools, n8n stands out as a powerful, open-source workflow automation platform that combines flexibility, scalability, and an intuitive interface to empower users to orchestrate complex processes with remarkable ease. This book, Bikin Automation dari Nol sampai Jadi menggunakan n8n, is designed to serve as a comprehensive guide for individuals and teams seeking to harness the full potential of n8n, from foundational concepts to advanced implementations, while navigating the nuances of real-world automation challenges.`,
             'React + JSX: Building Modern Web Appilications': `Preface: The Evolution and Imperative of React in Contemporary Development\nThe landscape of web application development has undergone a profound transformation over the past decade, shifting from static, server-rendered pages to dynamic, interactive single-page applications that rival the responsiveness of native desktop software. This paradigm shift was not merely driven by user expectations for richer experiences but by the fundamental limitations of traditional DOM manipulation techniques, which proved cumbersome, error-prone, and inefficient when managing complex, data-driven interfaces. The advent of JavaScript frameworks and libraries sought to address these challenges, yet many early solutions introduced their own layers of complexity, steep learning curves, and significant performance overhead, often constraining developer productivity rather than enhancing it. It was within this context of burgeoning demand for more maintainable and scalable front-end architectures that React, initially developed and open-sourced by Facebook in 2013, emerged as a revolutionary force, not by dictating an entire application structure, but by providing a focused, component-based approach to building user interfaces. React's core innovation lay in its elegant abstraction of the DOM through the concept of a virtual representation, coupled with a declarative programming model that allowed developers to describe what the UI should look like for any given state, rather than meticulously scripting how to achieve state transitions through imperative DOM mutations. This fundamental shift in thinking significantly reduced the cognitive load associated with managing UI state and interactions, leading to more predictable codebases and fewer subtle bugs.`,
@@ -584,7 +504,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatBookContent(content) {
-        // Convert plain text to formatted HTML
         return content
             .replace(/\n\n/g, '</p><p>')
             .replace(/\n/g, '<br>')
@@ -609,7 +528,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Load demo books if no data exists
         loadDemoBooks();
     }
 
@@ -702,135 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
     }
 
-    function loadAvailableBooks() {
-        const preProvidedBooks = [
-            {
-                title: 'Bikin Automation dari Nol sampai Jadi menggunakan n8n',
-                author: 'Author 1',
-                year: 2022
-            },
-            {
-                title: 'React + JSX: Building Modern Web Appilications',
-                author: 'Author 2',
-                year: 2021
-            },
-            {
-                title: 'Blockchain Developer In Industry 4.0',
-                author: 'Author 3',
-                year: 2023
-            },
-            {
-                title: 'Bikin 3D Object Menggunakan Phaser.js dan Three.js',
-                author: 'Author 4',
-                year: 2022
-            },
-            {
-                title: 'Bikin Game Makin Produktif dengan AI',
-                author: 'Author 5',
-                year: 2023
-            },
-            {
-                title: 'Cara Jago Ngoding Hanya Pake AI',
-                author: 'Author 6',
-                year: 2022
-            },
-            {
-                title: 'Malas Itu Bukan Penghalang',
-                author: 'Author 7',
-                year: 2023
-            }
-        ];
-
-        availableBooks = preProvidedBooks;
-
-        // Render available books
-        renderAvailableBooks();
-    }
-
-    function renderAvailableBooks() {
-        availableBooksContainer.innerHTML = '';
-
-        availableBooks.forEach(book => {
-            const bookElement = document.createElement('div');
-            bookElement.className = 'available-book';
-            bookElement.innerHTML = `
-                <h3>${book.title}</h3>
-                <p>Penulis: ${book.author}</p>
-                <p>Tahun: ${book.year}</p>
-                <button class="btn-primary" data-title="${book.title}" data-author="${book.author}" data-year="${book.year}">Pilih</button>
-                <button class="btn-secondary" data-title="${book.title}">Lihat buku</button>
-            `;
-
-            availableBooksContainer.appendChild(bookElement);
-        });
-
-        // Add event listeners
-        document.querySelectorAll('.available-book .btn-primary').forEach(button => {
-            button.addEventListener('click', function() {
-                const title = this.dataset.title;
-                const author = this.dataset.author;
-                const year = this.dataset.year;
-
-                // Add book to shelf
-                const newBook = {
-                    id: Date.now().toString(),
-                    title,
-                    author,
-                    year: parseInt(year),
-                    isComplete: false,
-                    isRead: false,
-                    readingProgress: 0,
-                    content: getBookContent(title),
-                    isPreProvided: true,
-                    isCustom: false
-                };
-
-                books.push(newBook);
-                saveBooks();
-                renderBooks();
-                updateBookCounts();
-
-                // Show success message
-                const successMessage = document.createElement('div');
-                successMessage.className = 'success-message';
-                successMessage.textContent = 'Book added to shelf!';
-                successMessage.style.position = 'fixed';
-                successMessage.style.top = '20px';
-                successMessage.style.right = '20px';
-                successMessage.style.backgroundColor = '#16a34a';
-                successMessage.style.color = 'white';
-                successMessage.style.padding = '10px 20px';
-                successMessage.style.borderRadius = '5px';
-                successMessage.style.zIndex = '1000';
-
-                document.body.appendChild(successMessage);
-
-                // Auto-hide success message
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                    document.body.removeChild(successMessage);
-                }, 3000);
-            });
-        });
-
-        document.querySelectorAll('.available-book .btn-secondary').forEach(button => {
-            button.addEventListener('click', function() {
-                const title = this.dataset.title;
-                const book = {
-                    title,
-                    author: this.dataset.author,
-                    year: parseInt(this.dataset.year),
-                    content: getBookContent(title),
-                    isPreProvided: true
-                };
-
-                // Show book details
-                showBookDetail(book);
-            });
-        });
-    }
-
-    // Event delegation for dynamic elements
     document.addEventListener('click', (e) => {
         if (e.target.matches('[data-testid="bookItemEditButton"]')) {
             handleEditClick(e);
@@ -841,6 +630,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initialize book counts
     updateBookCounts();
 });
